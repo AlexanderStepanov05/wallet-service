@@ -18,4 +18,10 @@ public class WalletConsole {
 
     public void start(MainHandler mainHandler, AdminHandler adminHandler, UserHandler userHandler) {
     }
+
+    public void setLoggedInUsername(Object o) {
+    }
+
+    public void setLoggedIn(boolean b) {
+    }
 }
