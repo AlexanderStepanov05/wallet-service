@@ -1,2 +1,4 @@
-package org.stepanov.handler;public class MainHandler {
+package org.stepanov.handler;
+
+public class MainHandler {
 }

@@ -1,2 +1,4 @@
-package org.stepanov.service;public class WalletTransactionService {
+package org.stepanov.service;
+
+public class WalletTransactionService {
 }
