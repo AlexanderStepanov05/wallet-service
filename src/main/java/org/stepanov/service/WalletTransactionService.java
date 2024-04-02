@@ -2,8 +2,8 @@ package org.stepanov.service;
 
 import org.stepanov.entity.Player;
 import org.stepanov.entity.Transaction;
-import org.stepanov.types.ActionType;
-import org.stepanov.types.AuditType;
+import org.stepanov.entity.types.ActionType;
+import org.stepanov.entity.types.AuditType;
 
 import java.util.List;
 import java.util.Map;

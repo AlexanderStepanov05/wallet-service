@@ -1,4 +1,4 @@
-package org.stepanov.types;
+package org.stepanov.entity.types;
 
 public enum TransactionType {
     DEBIT, CREDIT

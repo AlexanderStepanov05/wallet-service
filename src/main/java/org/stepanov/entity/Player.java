@@ -1,6 +1,9 @@
 package org.stepanov.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,16 +13,13 @@ import java.util.List;
  * Класс Player, описывающий пользователя
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Player {
+    private Integer id;
     private String username;
     private String password;
-    private BigDecimal balance;
-    private List<Transaction> transactions;
-
-    public Player(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.balance = BigDecimal.valueOf(0.0);
-        this.transactions = new ArrayList<>();
-    }
+    private BigDecimal balance = BigDecimal.ZERO;
+//    private List<Transaction> transactions;
 }

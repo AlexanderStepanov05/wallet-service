@@ -3,9 +3,9 @@ package org.stepanov.service;
 import lombok.Getter;
 import org.stepanov.entity.Player;
 import org.stepanov.entity.Transaction;
-import org.stepanov.types.ActionType;
-import org.stepanov.types.AuditType;
-import org.stepanov.types.TransactionType;
+import org.stepanov.entity.types.ActionType;
+import org.stepanov.entity.types.AuditType;
+import org.stepanov.entity.types.TransactionType;
 
 import java.math.BigDecimal;
 import java.util.*;
