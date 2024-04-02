@@ -10,6 +10,13 @@ import org.stepanov.types.TransactionType;
 import java.math.BigDecimal;
 import java.util.*;
 
+/**
+ * Класс WalletPlayerService представляет собой сервис для управления взаимодействием с игроками.
+ * Он предоставляет следующие функциональности:
+ * - Регистрация новых игроков.
+ * - Аутентификация игроков.
+ * - Проверка балансов игроков.
+ */
 @Getter
 public class WalletPlayerService {
     private final Map<String, Player> players;
@@ -23,6 +30,11 @@ public class WalletPlayerService {
         this.audits = new ArrayList<>();
     }
 
+    /**
+     * Метод регистрирует нового игрока с указанным именем и паролем.
+     *
+     * @return true, если регистрация успешно выполнена, иначе false.
+     */
     public boolean registerPlayer(String username, String password) {
         if (!players.containsKey(username)) {
             Player newPlayer = new Player(username, password);
@@ -37,6 +49,11 @@ public class WalletPlayerService {
         }
     }
 
+    /**
+     * Метод аутентифицирует игрока по имени пользователя и паролю.
+     *
+     * @return true, если аутентификация успешно выполнена, иначе false.
+     */
     public boolean authenticatePlayer(String username, String password) {
         Player player = players.get(username);
         if (player != null && player.getPassword().equals(password)) {
@@ -50,6 +67,12 @@ public class WalletPlayerService {
         }
     }
 
+    /**
+     * Метод возвращает баланс игрока с указанным именем.
+     *
+     * @param username Имя игрока.
+     * @return Баланс игрока.
+     */
     public BigDecimal getBalance(String username) {
         Player player = players.get(username);
         if (player != null) {
@@ -62,6 +85,14 @@ public class WalletPlayerService {
         }
     }
 
+    /**
+     * Метод выполняет кредитную транзакцию для игрока с идентификатором транзакции.
+     *
+     * @param username      Имя игрока
+     * @param transactionId Уникальный идентификатор транзакции
+     * @param amount        Сумма транзакции
+     * @return true, если транзакция успешно выполнена, иначе false.
+     */
     public boolean creditWithTransactionId(String username, String transactionId, BigDecimal amount) {
         if (transactions.containsKey(transactionId) && transactionId != null) {
             System.out.println("Транзакция с таким идентификатором уже существует.");
@@ -86,6 +117,14 @@ public class WalletPlayerService {
         }
     }
 
+    /**
+     * Метод выполняет дебетовую транзакцию для игрока с указанным именем.
+     *
+     * @param username      Имя игрока.
+     * @param transactionId Уникальный идентификатор транзакции
+     * @param amount        Сумма транзакции
+     * @return true, если транзакция успешно выполнена, иначе false.
+     */
     public boolean debitWithTransactionId(String username, String transactionId, BigDecimal amount) {
         Player player = players.get(username);
         if (player != null) {
@@ -114,6 +153,13 @@ public class WalletPlayerService {
         }
     }
 
+    /**
+     * Метод выполняет кредитную транзакцию для игрока без идентификатора транзакции.
+     *
+     * @param username Имя игрока
+     * @param amount   Сумма транзакции
+     * @return true, если транзакция успешно выполнена, иначе false.
+     */
     public boolean creditWithoutTransactionId(String username, BigDecimal amount) {
         UUID transactionId = UUID.randomUUID();
         String transactionIdString = transactionId.toString();
@@ -121,6 +167,13 @@ public class WalletPlayerService {
         return creditWithTransactionId(username, transactionIdString, amount);
     }
 
+    /**
+     * Метод выполняет дебетовую транзакцию для игрока без идентификатора транзакции.
+     *
+     * @param username Имя игрока
+     * @param amount   Сумма транзакции
+     * @return true, если транзакция успешно выполнена, иначе false.
+     */
     public boolean debitWithoutTransactionId(String username, BigDecimal amount) {
         UUID transactionId = UUID.randomUUID();
         String transactionIdString = transactionId.toString();
@@ -128,6 +181,13 @@ public class WalletPlayerService {
         return debitWithTransactionId(username, transactionIdString, amount);
     }
 
+    /**
+     * Регистрирует аудиторские записи о действиях пользователя.
+     *
+     * @param username   Имя пользователя, для которого регистрируется аудит.
+     * @param actionType Тип выполняемого действия (например, РЕГИСТРАЦИЯ, АВТОРИЗАЦИЯ).
+     * @param auditType  Тип результата аудита (например, SUCCESS - успешно, FAIL - неудачно).
+     */
     public void audit(String username, ActionType actionType, AuditType auditType) {
         String s = "Пользователь " + username + ": " + actionType + " | " + auditType;
         audits.add(s);

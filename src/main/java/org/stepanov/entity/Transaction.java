@@ -6,6 +6,9 @@ import org.stepanov.types.TransactionType;
 
 import java.math.BigDecimal;
 
+/**
+ * Класс Transaction, описывающий транзакцию
+ */
 @Data
 @AllArgsConstructor
 public class Transaction {

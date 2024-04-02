@@ -10,6 +10,12 @@ import org.stepanov.service.WalletTransactionService;
 import java.math.BigDecimal;
 import java.util.Scanner;
 
+
+/**
+ * Класс WalletConsole представляет текстовый интерфейс для взаимодействия с сервисом кошелька.
+ * Пользователь может выполнять регистрацию, аутентификацию, просматривать баланс,
+ * осуществлять дебет и кредит, а также просматривать историю транзакций.
+ */
 public class WalletConsole {
     WalletPlayerService walletPlayerService;
     WalletTransactionService walletTransactionService;
@@ -23,6 +29,11 @@ public class WalletConsole {
         walletTransactionService = new WalletTransactionService(walletPlayerService);
     }
 
+    /**
+     * Метод start запускает текстовый интерфейс для взаимодействия с кошельком.
+     *
+     * @throws Exception в случае возникновения исключений
+     */
     public void start(MainHandler mainHandler, AdminHandler adminHandler, UserHandler userHandler) {
         while (true) {
             if (!loggedIn) {

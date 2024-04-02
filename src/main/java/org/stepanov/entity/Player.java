@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Класс Player, описывающий пользователя
+ */
 @Data
 public class Player {
     private String username;

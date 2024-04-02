@@ -5,11 +5,21 @@ import org.stepanov.in.WalletConsole;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+/**
+ * Класс `UserHandler` представляет собой обработчик для взаимодействия пользователя
+ * с консольным интерфейсом приложения. Он предоставляет функциональность, связанную с
+ * отображением меню пользователя, чтением ввода и управлением пользовательскими действиями.
+ */
 public class UserHandler {
 
     Scanner scanner = new Scanner(System.in);
     WalletConsole walletConsole = new WalletConsole();
 
+    /**
+     * Считывает выбор пользователя из консоли.
+     *
+     * @return Выбор пользователя.
+     */
     public int readChoice() {
         int choice = 0;
         try {

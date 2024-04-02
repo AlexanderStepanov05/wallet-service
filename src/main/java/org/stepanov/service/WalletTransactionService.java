@@ -8,6 +8,10 @@ import org.stepanov.types.AuditType;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Класс WalletTransactionsService представляет собой сервис для управления транзакциями.
+ * Он позволяет выполнять дебетовые и кредитные транзакции,  а также просматривать историю транзакций.
+ */
 public class WalletTransactionService {
 
     private final WalletPlayerService walletPlayerService;
@@ -20,6 +24,11 @@ public class WalletTransactionService {
         this.players = walletPlayerService.getPlayers();
     }
 
+    /**
+     * Метод просматривает аудит действий игроков.
+     *
+     * @return Количество записей в аудите.
+     */
     public int viewAllAudits() {
         for (String audit : audits) {
             System.out.println(audit);
@@ -27,6 +36,12 @@ public class WalletTransactionService {
         return audits.size();
     }
 
+    /**
+     * Метод просматривает историю транзакций для игрока с указанным именем.
+     *
+     * @param username Имя игрока.
+     * @return Количество транзакций в истории.
+     */
     public int viewTransactionHistory(String username) {
         Player player = players.get(username);
 
