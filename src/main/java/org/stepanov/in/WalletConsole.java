@@ -13,7 +13,7 @@ public class WalletConsole {
 
     public WalletConsole() {
         walletPlayerService = new WalletPlayerService();
-        walletTransactionService = new WalletTransactionService();
+        walletTransactionService = new WalletTransactionService(walletPlayerService);
     }
 
     public void start(MainHandler mainHandler, AdminHandler adminHandler, UserHandler userHandler) {
