@@ -11,6 +11,8 @@ public interface Service<T, V> {
 
     void save(V v);
 
+    void update(V v);
+
     boolean delete(T id);
 
     boolean deleteAll();

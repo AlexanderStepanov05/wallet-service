@@ -25,8 +25,6 @@ public class WalletConsole {
     Scanner scanner = new Scanner(System.in);
 
     public WalletConsole() {
-        walletPlayerService = new WalletPlayerService();
-        walletTransactionService = new WalletTransactionService(walletPlayerService);
     }
 
     /**
