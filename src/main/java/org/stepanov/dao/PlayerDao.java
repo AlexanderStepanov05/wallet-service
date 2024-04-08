@@ -1,37 +1,38 @@
 package org.stepanov.dao;
 
-import org.stepanov.entity.Transaction;
-import org.stepanov.entity.types.TransactionType;
+import lombok.NoArgsConstructor;
+import org.stepanov.entity.Player;
 import org.stepanov.util.ConnectionManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class TransactionDaoImpl implements Dao<Integer, Transaction> {
-    private static final TransactionDaoImpl INSTANCE = new TransactionDaoImpl();
+@NoArgsConstructor
+public class PlayerDao implements Dao<Integer, Player> {
+    private static final PlayerDao INSTANCE = new PlayerDao();
 
-    public static TransactionDaoImpl getInstance() {
+    public static PlayerDao getInstance() {
         return INSTANCE;
     }
 
     @Override
-    public Optional<Transaction> findById(Integer id) {
+    public Optional<Player> findById(Integer id) {
         String findByIdSql = """
-                select * from wallet.transactions
-                where transaction_id = ?;
+                select * from wallet.players
+                where id = ?;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
-             var preparedStatement = connection.prepareStatement(findByIdSql)) {
+            var preparedStatement = connection.prepareStatement(findByIdSql)) {
             preparedStatement.setObject(1, id);
             var resultSet = preparedStatement.executeQuery();
 
             return resultSet.next()
-                    ? Optional.of(buildTransaction(resultSet))
+                    ? Optional.of(buildUser(resultSet))
                     : Optional.empty();
 
         } catch (SQLException e) {
@@ -41,22 +42,22 @@ public class TransactionDaoImpl implements Dao<Integer, Transaction> {
     }
 
     @Override
-    public List<Transaction> findAll() {
+    public List<Player> findAll() {
         String findAllSql = """
-                select * from wallet.transactions;
+                select * from wallet.players;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
              var preparedStatement = connection.prepareStatement(findAllSql)) {
 
             var resultSet = preparedStatement.executeQuery();
-            List<Transaction> transactions = new ArrayList<>();
+            List<Player> players = new ArrayList<>();
 
             while (resultSet.next()) {
-                transactions.add(buildTransaction(resultSet));
+                players.add(buildUser(resultSet));
             }
 
-            return transactions;
+            return players;
 
         } catch (SQLException e) {
             System.err.println("Ошибка при выполнении запроса: " + e.getMessage());
@@ -64,73 +65,72 @@ public class TransactionDaoImpl implements Dao<Integer, Transaction> {
         }
     }
 
-    public List<Transaction> findByPlayerId(Integer playerId) {
-        String findByIdSql = """
-                select * from wallet.transactions 
-                where player_id = ?;
+    public Optional<Player> findByUsername(String username) {
+        String findByUsernameSql = """
+                select * from wallet.players 
+                where username = ?;
                 """;
 
-        List<Transaction> transactions = new ArrayList<>();
-
         try (var connection = ConnectionManager.getConnection();
-             var preparedStatement = connection.prepareStatement(findByIdSql)) {
-            preparedStatement.setObject(1, playerId);
+             var preparedStatement = connection.prepareStatement(findByUsernameSql)) {
+            preparedStatement.setObject(1, username);
             var resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                var transaction = buildTransaction(resultSet);
-                transactions.add(transaction);
+            if (resultSet.next()) {
+                return Optional.of(buildUser(resultSet));
+            } else {
+                return Optional.empty();
             }
 
         } catch (SQLException e) {
             System.err.println("Ошибка при выполнении запроса: " + e.getMessage());
+            return Optional.empty();
         }
-        return transactions;
+
     }
 
     @Override
-    public Transaction save(Transaction transaction) {
+    public Player save(Player player) {
         String saveSql = """
-                insert into wallet.transactions(transaction_id, type, amount, player_id)  
-                values (?, ?, ?, ?);
+                insert into wallet.players(username, password, balance) 
+                values (?, ?, ?);
                 """;
 
         try (var connection = ConnectionManager.getConnection();
-             var preparedStatement = connection.prepareStatement(saveSql)) {
-            preparedStatement.setObject(1, transaction.getTransactionId());
-            preparedStatement.setObject(2, transaction.getType(), Types.OTHER);
-            preparedStatement.setObject(3, transaction.getAmount());
-            preparedStatement.setObject(4, transaction.getPlayerId());
+             var preparedStatement = connection.prepareStatement(saveSql, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, player.getUsername());
+            preparedStatement.setString(2, player.getPassword());
+            preparedStatement.setBigDecimal(3, player.getBalance());
 
             preparedStatement.executeUpdate();
-            ResultSet keys = preparedStatement.getGeneratedKeys();
 
-            if (keys.next()) {
-                transaction.setTransactionId(keys.getObject("transaction_id", Integer.class));
+            var generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                player.setId(generatedKeys.getObject("id", Integer.class));
             }
 
-            return transaction;
+            return player;
 
         } catch (SQLException e) {
-            System.err.println("class: TransactionDaoImpl | method: save |  Ошибка при выполнении SQL-запроса: " + e.getMessage());
+            System.err.println("Ошибка при выполнении запроса: " + e.getMessage());
             return null;
         }
     }
 
     @Override
-    public void update(Transaction transaction) {
+    public void update(Player player) {
         String updateSql = """
-                 update wallet.transactions 
-                 set type = ?, 
-                     amount = ? 
-                 where transaction_id = ?;
+                update wallet.players 
+                set username = ?, 
+                    password = ?, 
+                    balance = ?;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
              var preparedStatement = connection.prepareStatement(updateSql)) {
-            preparedStatement.setObject(1, transaction.getType(), Types.OTHER);
-            preparedStatement.setObject(2, transaction.getAmount());
-            preparedStatement.setObject(3, transaction.getTransactionId());
+            preparedStatement.setString(1, player.getUsername());
+            preparedStatement.setString(2, player.getPassword());
+            preparedStatement.setBigDecimal(3, player.getBalance());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -142,7 +142,7 @@ public class TransactionDaoImpl implements Dao<Integer, Transaction> {
     @Override
     public boolean delete(Integer id) {
         String deleteSql = """
-                delete from wallet.transactions  
+                delete from wallet.players 
                 where id = ?;
                 """;
 
@@ -160,7 +160,7 @@ public class TransactionDaoImpl implements Dao<Integer, Transaction> {
     @Override
     public boolean deleteAll() {
         String deleteSql = """
-                delete from wallet.transactions;
+                delete from wallet.players;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
@@ -173,15 +173,12 @@ public class TransactionDaoImpl implements Dao<Integer, Transaction> {
         }
     }
 
-    private Transaction buildTransaction(ResultSet resultSet) throws SQLException {
-        String transactionTypeString = resultSet.getString("type");
-        TransactionType transactionType = TransactionType.valueOf(transactionTypeString);
-
-        return Transaction.builder()
-                .transactionId(resultSet.getInt("transaction_id"))
-                .type(transactionType)
-                .amount(resultSet.getBigDecimal("amount"))
-                .playerId(resultSet.getInt("player_id"))
+    private Player buildUser(ResultSet resultSet) throws SQLException {
+        return Player.builder()
+                .id(resultSet.getObject("id", Integer.class))
+                .username(resultSet.getString("username"))
+                .password(resultSet.getString("password"))
+                .balance(resultSet.getBigDecimal("balance"))
                 .build();
     }
 }

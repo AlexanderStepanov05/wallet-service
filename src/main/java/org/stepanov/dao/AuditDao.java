@@ -1,38 +1,42 @@
 package org.stepanov.dao;
 
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.stepanov.entity.Player;
+import org.stepanov.entity.Audit;
+import org.stepanov.entity.types.ActionType;
+import org.stepanov.entity.types.AuditType;
 import org.stepanov.util.ConnectionManager;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@NoArgsConstructor
-public class PlayerDaoImpl implements Dao<Integer, Player> {
-    private static final PlayerDaoImpl INSTANCE = new PlayerDaoImpl();
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class AuditDao implements Dao<Integer, Audit> {
+    private static final AuditDao INSTANCE = new AuditDao();
 
-    public static PlayerDaoImpl getInstance() {
+    public static AuditDao getInstance() {
         return INSTANCE;
     }
 
     @Override
-    public Optional<Player> findById(Integer id) {
+    public Optional<Audit> findById(Integer id) {
         String findByIdSql = """
-                select * from wallet.players
+                select * from wallet.audits
                 where id = ?;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
-            var preparedStatement = connection.prepareStatement(findByIdSql)) {
+             var preparedStatement = connection.prepareStatement(findByIdSql)) {
             preparedStatement.setObject(1, id);
             var resultSet = preparedStatement.executeQuery();
 
             return resultSet.next()
-                    ? Optional.of(buildUser(resultSet))
+                    ? Optional.of(buildAudit(resultSet))
                     : Optional.empty();
 
         } catch (SQLException e) {
@@ -42,22 +46,22 @@ public class PlayerDaoImpl implements Dao<Integer, Player> {
     }
 
     @Override
-    public List<Player> findAll() {
+    public List<Audit> findAll() {
         String findAllSql = """
-                select * from wallet.players;
+                select * from wallet.audits;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
              var preparedStatement = connection.prepareStatement(findAllSql)) {
 
             var resultSet = preparedStatement.executeQuery();
-            List<Player> players = new ArrayList<>();
+            List<Audit> audits = new ArrayList<>();
 
             while (resultSet.next()) {
-                players.add(buildUser(resultSet));
+                audits.add(buildAudit(resultSet));
             }
 
-            return players;
+            return audits;
 
         } catch (SQLException e) {
             System.err.println("Ошибка при выполнении запроса: " + e.getMessage());
@@ -65,10 +69,10 @@ public class PlayerDaoImpl implements Dao<Integer, Player> {
         }
     }
 
-    public Optional<Player> findByUsername(String username) {
+    public Optional<Audit> findByUsername(String username) {
         String findByUsernameSql = """
-                select * from wallet.players 
-                where username = ?;
+                select * from wallet.audits 
+                where player_username = ?;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
@@ -77,10 +81,11 @@ public class PlayerDaoImpl implements Dao<Integer, Player> {
             var resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                return Optional.of(buildUser(resultSet));
+                return Optional.of(buildAudit(resultSet));
             } else {
                 return Optional.empty();
             }
+
 
         } catch (SQLException e) {
             System.err.println("Ошибка при выполнении запроса: " + e.getMessage());
@@ -90,26 +95,33 @@ public class PlayerDaoImpl implements Dao<Integer, Player> {
     }
 
     @Override
-    public Player save(Player player) {
+    public Audit save(Audit audit) {
         String saveSql = """
-                insert into wallet.players(username, password, balance) 
+                insert into wallet.audits(audit_type, action_type, player_username) 
                 values (?, ?, ?);
                 """;
 
         try (var connection = ConnectionManager.getConnection();
-             var preparedStatement = connection.prepareStatement(saveSql)) {
-            preparedStatement.setString(1, player.getUsername());
-            preparedStatement.setString(2, player.getPassword());
-            preparedStatement.setBigDecimal(3, player.getBalance());
+             var preparedStatement = connection.prepareStatement(saveSql, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setObject(1, audit.getPlayerFullName());
+            preparedStatement.setObject(2, audit.getAuditType(), Types.OTHER);
+            preparedStatement.setObject(3, audit.getActionType(), Types.OTHER);
 
-            preparedStatement.executeUpdate();
+            var affectedRows = preparedStatement.executeUpdate();
 
-            var generatedKeys = preparedStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                player.setId(generatedKeys.getObject("id", Integer.class));
+            if (affectedRows > 0) {
+                try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        audit.setId(keys.getObject(1, Integer.class));
+                    }
+                } catch (SQLException e) {
+                    System.err.println("Ошибка при получении сгенерированного ключа: " + e.getMessage());
+                }
+            } else {
+                System.err.println("Ошибка при выполнении SQL-запроса. Нет добавленных записей.");
             }
 
-            return player;
+            return audit;
 
         } catch (SQLException e) {
             System.err.println("Ошибка при выполнении запроса: " + e.getMessage());
@@ -118,19 +130,19 @@ public class PlayerDaoImpl implements Dao<Integer, Player> {
     }
 
     @Override
-    public void update(Player player) {
+    public void update(Audit audit) {
         String updateSql = """
-                update wallet.players 
-                set username = ?, 
-                    password = ?, 
-                    balance = ?;
+                update wallet.audits 
+                set audit_type = ?, 
+                    action_type = ?, 
+                where id = ?;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
              var preparedStatement = connection.prepareStatement(updateSql)) {
-            preparedStatement.setString(1, player.getUsername());
-            preparedStatement.setString(2, player.getPassword());
-            preparedStatement.setBigDecimal(3, player.getBalance());
+            preparedStatement.setObject(1, audit.getAuditType());
+            preparedStatement.setObject(2, audit.getActionType());
+            preparedStatement.setObject(3, audit.getId());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -142,7 +154,7 @@ public class PlayerDaoImpl implements Dao<Integer, Player> {
     @Override
     public boolean delete(Integer id) {
         String deleteSql = """
-                delete from wallet.players 
+                delete from wallet.audits 
                 where id = ?;
                 """;
 
@@ -160,7 +172,7 @@ public class PlayerDaoImpl implements Dao<Integer, Player> {
     @Override
     public boolean deleteAll() {
         String deleteSql = """
-                delete from wallet.players;
+                delete from wallet.audits;
                 """;
 
         try (var connection = ConnectionManager.getConnection();
@@ -173,12 +185,18 @@ public class PlayerDaoImpl implements Dao<Integer, Player> {
         }
     }
 
-    private Player buildUser(ResultSet resultSet) throws SQLException {
-        return Player.builder()
-                .id(resultSet.getObject("id", Integer.class))
-                .username(resultSet.getString("username"))
-                .password(resultSet.getString("password"))
-                .balance(resultSet.getBigDecimal("balance"))
+    private Audit buildAudit(ResultSet resultSet) throws SQLException {
+        String auditTypeString = resultSet.getString("audit_type");
+        AuditType auditType = AuditType.valueOf(auditTypeString);
+
+        String actionTypeString = resultSet.getString("action_type");
+        ActionType actionType = ActionType.valueOf(actionTypeString);
+
+        return Audit.builder()
+                .id(resultSet.getInt("id"))
+                .auditType(auditType)
+                .actionType(actionType)
+                .playerFullName(resultSet.getString("player_username"))
                 .build();
     }
 }

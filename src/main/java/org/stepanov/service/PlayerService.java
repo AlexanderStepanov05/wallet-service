@@ -1,29 +1,24 @@
 package org.stepanov.service;
 
 import lombok.Getter;
-import org.stepanov.dao.PlayerDaoImpl;
+import org.stepanov.dao.PlayerDao;
 import org.stepanov.entity.Player;
-import org.stepanov.entity.Transaction;
-import org.stepanov.entity.types.ActionType;
-import org.stepanov.entity.types.AuditType;
-import org.stepanov.entity.types.TransactionType;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
- * Класс WalletPlayerService представляет собой сервис для управления взаимодействием с игроками.
+ * Класс PlayerService представляет собой сервис для управления взаимодействием с игроками.
  * Он предоставляет следующие функциональности:
  * - Регистрация новых игроков.
  * - Аутентификация игроков.
  * - Проверка балансов игроков.
  */
 @Getter
-public class WalletPlayerService implements Service<Integer, Player> {
-    private static final WalletPlayerService INSTANCE = new WalletPlayerService();
-    PlayerDaoImpl playerDao = new PlayerDaoImpl();
+public class PlayerService implements Service<Integer, Player> {
+    private static final PlayerService INSTANCE = new PlayerService();
+    PlayerDao playerDao = new PlayerDao();
 
-    public static WalletPlayerService getInstance() {
+    public static PlayerService getInstance() {
         return INSTANCE;
     }
 

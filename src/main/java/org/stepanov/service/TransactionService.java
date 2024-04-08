@@ -1,24 +1,20 @@
 package org.stepanov.service;
 
-import org.stepanov.dao.TransactionDaoImpl;
-import org.stepanov.entity.Player;
+import org.stepanov.dao.TransactionDao;
 import org.stepanov.entity.Transaction;
-import org.stepanov.entity.types.ActionType;
-import org.stepanov.entity.types.AuditType;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * Класс WalletTransactionsService представляет собой сервис для управления транзакциями.
  * Он позволяет выполнять дебетовые и кредитные транзакции,  а также просматривать историю транзакций.
  */
-public class WalletTransactionService implements Service<Integer, Transaction> {
-    private static final WalletTransactionService INSTANCE = new WalletTransactionService();
-    TransactionDaoImpl transactionDao = new TransactionDaoImpl();
+public class TransactionService implements Service<Integer, Transaction> {
+    private static final TransactionService INSTANCE = new TransactionService();
+    TransactionDao transactionDao = new TransactionDao();
 
-    public static WalletTransactionService getInstance() {
+    public static TransactionService getInstance() {
         return INSTANCE;
     }
 

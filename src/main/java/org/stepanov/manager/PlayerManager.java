@@ -8,9 +8,9 @@ import org.stepanov.entity.Transaction;
 import org.stepanov.entity.types.ActionType;
 import org.stepanov.entity.types.AuditType;
 import org.stepanov.exception.TransactionException;
-import org.stepanov.service.WalletAuditService;
-import org.stepanov.service.WalletPlayerService;
-import org.stepanov.service.WalletTransactionService;
+import org.stepanov.service.AuditService;
+import org.stepanov.service.PlayerService;
+import org.stepanov.service.TransactionService;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -23,9 +23,9 @@ import static org.stepanov.entity.types.TransactionType.DEBIT;
 
 @NoArgsConstructor
 public class PlayerManager {
-    private final WalletPlayerService playerService = WalletPlayerService.getInstance();
-    private final WalletTransactionService transactionService = WalletTransactionService.getInstance();
-    private final WalletAuditService auditService = WalletAuditService.getInstance();
+    private final PlayerService playerService = PlayerService.getInstance();
+    private final TransactionService transactionService = TransactionService.getInstance();
+    private final AuditService auditService = AuditService.getInstance();
 
 
     public boolean registerPlayer(String username, String password) {
