@@ -8,7 +8,7 @@ public interface Dao<Id, Entity> {
 
     List<Entity> findAll();
 
-    void save(Entity entity);
+    Entity save(Entity entity);
 
     void update(Entity entity);
 

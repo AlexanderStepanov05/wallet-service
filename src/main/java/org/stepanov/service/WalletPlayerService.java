@@ -20,11 +20,20 @@ import java.util.*;
  */
 @Getter
 public class WalletPlayerService implements Service<Integer, Player> {
+    private static final WalletPlayerService INSTANCE = new WalletPlayerService();
     PlayerDaoImpl playerDao = new PlayerDaoImpl();
+
+    public static WalletPlayerService getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public Optional<Player> findById(Integer id) {
         return playerDao.findById(id);
+    }
+
+    public Optional<Player> findByUsername(String username) {
+        return playerDao.findByUsername(username);
     }
 
     @Override

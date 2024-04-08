@@ -3,7 +3,8 @@ package org.stepanov;
 import org.stepanov.handler.AdminHandler;
 import org.stepanov.handler.MainHandler;
 import org.stepanov.handler.UserHandler;
-import org.stepanov.in.WalletConsole;
+//import org.stepanov.in.WalletConsole;
+import org.stepanov.liquibase.LiquibaseDemo;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,7 +12,10 @@ public class Main {
         AdminHandler adminHandler = new AdminHandler();
         UserHandler userHandler = new UserHandler();
 
-        WalletConsole walletConsole = new WalletConsole();
-        walletConsole.start(mainHandler, adminHandler, userHandler);
+        LiquibaseDemo liquibaseDemo = LiquibaseDemo.getInstance();
+        liquibaseDemo.runMigrations();
+
+//        WalletConsole walletConsole = new WalletConsole();
+//        walletConsole.start(mainHandler, adminHandler, userHandler);
     }
 }

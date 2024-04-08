@@ -15,7 +15,12 @@ import java.util.Optional;
  * Он позволяет выполнять дебетовые и кредитные транзакции,  а также просматривать историю транзакций.
  */
 public class WalletTransactionService implements Service<Integer, Transaction> {
+    private static final WalletTransactionService INSTANCE = new WalletTransactionService();
     TransactionDaoImpl transactionDao = new TransactionDaoImpl();
+
+    public static WalletTransactionService getInstance() {
+        return INSTANCE;
+    }
 
 
     @Override
@@ -26,6 +31,10 @@ public class WalletTransactionService implements Service<Integer, Transaction> {
     @Override
     public List<Transaction> findAll() {
         return transactionDao.findAll();
+    }
+
+    public List<Transaction> findByPlayerId(Integer id) {
+        return transactionDao.findByPlayerId(id);
     }
 
     @Override

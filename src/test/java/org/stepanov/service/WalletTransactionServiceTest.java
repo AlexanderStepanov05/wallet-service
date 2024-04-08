@@ -15,7 +15,7 @@ public class WalletTransactionServiceTest {
     @BeforeEach
     public void setUp() {
         walletPlayerService = new WalletPlayerService();
-        walletTransactionService = new WalletTransactionService(walletPlayerService);
+        walletTransactionService = new WalletTransactionService();
     }
 
     @Test
